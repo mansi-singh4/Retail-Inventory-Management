@@ -19,6 +19,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
   public static final String INVALID_JWT_ATTRIBUTE = JwtAuthenticationFilter.class.getName() + ".invalid";
+  public static final String AUTHENTICATED_JWT_ATTRIBUTE = JwtAuthenticationFilter.class.getName() + ".authenticated";
   private final byte[] secret;
   private static final Pattern ROLE_PATTERN = Pattern.compile("[A-Z][A-Z0-9_]*");
 
@@ -43,6 +44,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
           var authorities = roles.stream().map(role -> new SimpleGrantedAuthority("ROLE_" + role)).toList();
           SecurityContextHolder.getContext().setAuthentication(
               new UsernamePasswordAuthenticationToken(subject, null, authorities));
+            request.setAttribute(AUTHENTICATED_JWT_ATTRIBUTE, Boolean.TRUE);
         }
       } catch (RuntimeException ignored) {
         request.setAttribute(INVALID_JWT_ATTRIBUTE, Boolean.TRUE);

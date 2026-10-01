@@ -26,7 +26,9 @@ public class SecurityConfig {
 	@Bean SecurityFilterChain filterChain(HttpSecurity http, @Value("${security.jwt-secret}") String secret) throws Exception {
 		return http.csrf(c -> c.disable())
 				.sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-				.exceptionHandling(e -> e.authenticationEntryPoint((request, response, error) -> response.sendError(HttpStatus.UNAUTHORIZED.value()))
+				.exceptionHandling(e -> e.authenticationEntryPoint((request, response, error) -> response.sendError(
+					request.getAttribute(JwtAuthenticationFilter.AUTHENTICATED_JWT_ATTRIBUTE) == null
+						? HttpStatus.UNAUTHORIZED.value() : HttpStatus.FORBIDDEN.value()))
 						.accessDeniedHandler((request, response, error) -> response.sendError(HttpStatus.FORBIDDEN.value())))
 				.authorizeHttpRequests(a -> a.requestMatchers("/actuator/health").permitAll()
 					.requestMatchers(HttpMethod.POST, "/auth/register", "/auth/login").permitAll()
