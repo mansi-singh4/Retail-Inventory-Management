@@ -1,0 +1,1 @@
+ALTER TABLE order_service.orders ADD COLUMN IF NOT EXISTS warehouse_id BIGINT;

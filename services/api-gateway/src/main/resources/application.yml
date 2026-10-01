@@ -1,0 +1,55 @@
+server:
+  port: 8080
+
+spring:
+  cloud:
+    gateway:
+      globalcors:
+        cors-configurations:
+          '[/**]':
+            allowedOrigins: "http://localhost:5173"
+            allowedMethods: "GET,POST,PUT,DELETE,OPTIONS"
+            allowedHeaders: "*"
+            allowCredentials: true
+
+      routes:
+        - id: auth
+          uri: ${AUTH_URL:http://localhost:8081}
+          predicates:
+            - Path=/api/auth/**
+          filters:
+            - StripPrefix=1
+
+        - id: product
+          uri: ${PRODUCT_URL:http://localhost:8082}
+          predicates:
+            - Path=/api/products/**,/api/categories/**
+          filters:
+            - StripPrefix=1
+
+        - id: inventory
+          uri: ${INVENTORY_URL:http://localhost:8083}
+          predicates:
+            - Path=/api/inventory/**,/api/warehouses/**
+          filters:
+            - StripPrefix=1
+
+        - id: supplier
+          uri: ${SUPPLIER_URL:http://localhost:8084}
+          predicates:
+            - Path=/api/suppliers/**,/api/purchase-orders/**
+          filters:
+            - StripPrefix=1
+
+        - id: order
+          uri: ${ORDER_URL:http://localhost:8085}
+          predicates:
+            - Path=/api/orders/**
+          filters:
+            - StripPrefix=1
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info

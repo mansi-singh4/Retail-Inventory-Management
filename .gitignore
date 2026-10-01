@@ -1,2 +1,28 @@
 .rocketride/
 .env
+# Java / Maven
+target/
+*.class
+
+# Node
+node_modules/
+dist/
+
+# Environment
+.env
+.env.example
+
+
+# IDE
+.vscode/
+.idea/
+*.iml
+
+# Logs
+*.log
+
+# Maven generated
+**/auth-effective-pom
+
+# TypeScript generated
+*.tsbuildinfo

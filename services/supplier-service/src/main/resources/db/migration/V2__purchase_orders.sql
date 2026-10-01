@@ -1,0 +1,1 @@
+CREATE TABLE IF NOT EXISTS supplier_service.purchase_orders (id BIGSERIAL PRIMARY KEY, supplier_id BIGINT NOT NULL, product_id BIGINT NOT NULL, warehouse_id BIGINT NOT NULL, quantity INTEGER NOT NULL, status VARCHAR(30) NOT NULL, created_at TIMESTAMP WITH TIME ZONE NOT NULL);

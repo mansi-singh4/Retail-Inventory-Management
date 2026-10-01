@@ -1,0 +1,67 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: inventory
+      POSTGRES_PASSWORD: inventory
+      POSTGRES_DB: inventory
+    ports: ["5432:5432"]
+    volumes: [postgres-data:/var/lib/postgresql/data]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U inventory -d inventory"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+  api-gateway:
+    build: ./services/api-gateway
+    ports: ["8090:8080"]
+    environment:
+      AUTH_URL: http://auth-service:8081
+      PRODUCT_URL: http://product-service:8082
+      INVENTORY_URL: http://inventory-service:8083
+      SUPPLIER_URL: http://supplier-service:8084
+      ORDER_URL: http://order-service:8085
+    depends_on: [auth-service, product-service, inventory-service, supplier-service, order-service]
+  auth-service:
+    build: ./services/auth-service
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/inventory
+      JWT_SECRET: ${JWT_SECRET:?JWT_SECRET must be set}
+      INITIAL_ADMIN_EMAIL: ${INITIAL_ADMIN_EMAIL:-}
+    ports: ["8081:8081"]
+    depends_on:
+      postgres: { condition: service_healthy }
+  product-service:
+    build: ./services/product-service
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/inventory
+      JWT_SECRET: ${JWT_SECRET:?JWT_SECRET must be set}
+    ports: ["8082:8082"]
+    depends_on:
+      postgres: { condition: service_healthy }
+  inventory-service:
+    build: ./services/inventory-service
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/inventory
+      JWT_SECRET: ${JWT_SECRET:?JWT_SECRET must be set}
+    ports: ["8083:8083"]
+    depends_on:
+      postgres: { condition: service_healthy }
+  supplier-service:
+    build: ./services/supplier-service
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/inventory
+      JWT_SECRET: ${JWT_SECRET:?JWT_SECRET must be set}
+    ports: ["8084:8084"]
+    depends_on:
+      postgres: { condition: service_healthy }
+  order-service:
+    build: ./services/order-service
+    ports: ["8085:8085"]
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/inventory
+      INVENTORY_URL: http://inventory-service:8083
+      JWT_SECRET: ${JWT_SECRET:?JWT_SECRET must be set}
+    depends_on:
+      postgres: { condition: service_healthy }
+volumes: { postgres-data: }

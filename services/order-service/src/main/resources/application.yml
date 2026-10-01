@@ -1,0 +1,21 @@
+server:
+  port: 8085
+services:
+  inventory-url: "${INVENTORY_URL:http://localhost:8083}"
+spring:
+  datasource:
+    url: "${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/inventory}"
+    username: "${POSTGRES_USER:inventory}"
+    password: "${POSTGRES_PASSWORD:inventory}"
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    open-in-view: false
+    properties:
+      hibernate:
+        default_schema: order_service
+  flyway:
+    schemas: order_service
+    default-schema: order_service
+security:
+  jwt-secret: "${JWT_SECRET}"

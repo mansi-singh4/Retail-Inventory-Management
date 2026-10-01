@@ -1,0 +1,2 @@
+CREATE SCHEMA IF NOT EXISTS supplier_service;
+CREATE TABLE IF NOT EXISTS supplier_service.suppliers (id BIGSERIAL PRIMARY KEY, name VARCHAR(255) NOT NULL, email VARCHAR(255), phone VARCHAR(100));

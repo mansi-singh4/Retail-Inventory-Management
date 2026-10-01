@@ -1,0 +1,21 @@
+server:
+  port: 8081
+spring:
+  datasource:
+    url: "${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/inventory}"
+    username: "${POSTGRES_USER:inventory}"
+    password: "${POSTGRES_PASSWORD:inventory}"
+  jpa:
+    hibernate:
+      ddl-auto: validate
+      
+    open-in-view: false
+    properties:
+      hibernate:
+        default_schema: auth_service
+  flyway:
+    schemas: auth_service
+    default-schema: auth_service
+security:
+  jwt-secret: "${JWT_SECRET}"
+  initial-admin-email: "${INITIAL_ADMIN_EMAIL:}"
