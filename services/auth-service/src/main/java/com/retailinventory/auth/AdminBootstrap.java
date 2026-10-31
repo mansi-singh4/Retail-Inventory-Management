@@ -16,7 +16,7 @@ public class AdminBootstrap implements CommandLineRunner {
 
   @Override
   public void run(String... args) {
-    if (email.isBlank() || users.countByRole(Role.ADMIN) > 0) return;
+    if (email.isBlank() || users.countByRole(Role.ADMIN) > 1) return;
     users.findByEmail(email.trim()).ifPresent(user -> {
       user.role = Role.ADMIN;
       users.save(user);

@@ -25,15 +25,9 @@ import org.springframework.web.client.RestClient;
 @RequestMapping("/suppliers")
 public class SupplierController {
   private final SupplierRepository repo;
-  private final PurchaseOrderRepository purchaseOrders;
-  private final RestClient client = RestClient.builder().build();
-  private final String inventoryUrl;
 
-  public SupplierController(SupplierRepository repo, PurchaseOrderRepository purchaseOrders,
-      @Value("${services.inventory-url:http://localhost:8083}") String inventoryUrl) {
+  public SupplierController(SupplierRepository repo) {
     this.repo = repo;
-    this.purchaseOrders = purchaseOrders;
-    this.inventoryUrl = inventoryUrl;
   }
 
   @GetMapping
@@ -63,7 +57,16 @@ public class SupplierController {
 
   @RestController
   @RequestMapping("/purchase-orders")
-  class PurchaseOrderController {
+  static class PurchaseOrderController {
+    private final PurchaseOrderRepository purchaseOrders;
+    private final RestClient client = RestClient.builder().build();
+    private final String inventoryUrl;
+
+    PurchaseOrderController(PurchaseOrderRepository purchaseOrders,
+        @Value("${services.inventory-url:http://localhost:8083}") String inventoryUrl) {
+      this.purchaseOrders = purchaseOrders;
+      this.inventoryUrl = inventoryUrl;
+    }
 
     @GetMapping
     @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER', 'STAFF')")

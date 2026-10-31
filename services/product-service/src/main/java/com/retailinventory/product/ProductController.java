@@ -28,7 +28,7 @@ public class ProductController {
   public List<Product> all() { return repo.findAll(); }
 
   @PostMapping
-  @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
+  @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'ROLE_MANAGER')")
   public ResponseEntity<Product> create(@Valid @RequestBody Product input) {
     input.id = null;
     return ResponseEntity.status(HttpStatus.CREATED).body(repo.save(input));
@@ -39,7 +39,7 @@ public class ProductController {
   public Product get(@PathVariable Long id) { return repo.findById(id).orElseThrow(); }
 
   @PutMapping("/{id}")
-  @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
+  @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'ROLE_MANAGER')")
   public Product update(@PathVariable Long id, @Valid @RequestBody Product input) {
     Product product = get(id);
     product.name = input.name;
@@ -50,7 +50,7 @@ public class ProductController {
   }
 
   @DeleteMapping("/{id}")
-  @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
+  @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'ROLE_MANAGER')")
   public void delete(@PathVariable Long id) { repo.deleteById(id); }
 
   @Entity

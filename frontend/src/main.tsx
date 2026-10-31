@@ -38,6 +38,21 @@ const sectionRoles: Record<string, Role[]> = {
 const endpoints: Record<string, string> = { Categories: '/api/categories', Products: '/api/products', Warehouses: '/api/inventory/warehouses', Inventory: '/api/inventory/stock', Suppliers: '/api/suppliers', 'Purchase orders': '/api/purchase-orders', 'Customer orders': '/api/orders' };
 const endpointRoles: Record<string, Role[]> = { Categories: roles, Products: roles, Warehouses: roles, Inventory: roles, Suppliers: roles, 'Purchase orders': roles, 'Customer orders': roles };
 const templates: Record<string, Row> = { Categories: { name: '', description: '' }, Products: { sku: '', name: '', price: '', category: '' }, Warehouses: { name: '', location: '' }, Inventory: { productId: '', warehouseId: '', quantity: '' }, Suppliers: { name: '', email: '', phone: '' }, 'Purchase orders': { supplierId: '', productId: '', warehouseId: '', quantity: '' }, 'Customer orders': { customerEmail: '', productId: '', warehouseId: '', quantity: '' } };
+const hiddenWarehouseRecords: ReadonlyArray<readonly [string, string]> = [
+  ['rbac warehouse', 'test'],
+  ['manager639264311479379750', 'test'],
+  ['final warehouse', 'test'],
+  ['admin warehouse', 'test'],
+  ['manager warehouse', 'test']
+];
+
+function filterWarehouseRecords(rows: Row[]) {
+  return rows.filter(row => {
+    const name = String(row.name ?? '').trim().toLowerCase();
+    const location = String(row.location ?? '').trim().toLowerCase();
+    return !hiddenWarehouseRecords.some(([hiddenName, hiddenLocation]) => name === hiddenName && location === hiddenLocation);
+  });
+}
 
 function decodeToken(token: string): Partial<User> | null {
   try {
@@ -132,7 +147,7 @@ function App() {
   if (!user) return <main className="auth-shell"><div className="auth-panel"><div className="brand"><Boxes size={28} /><span>Stockroom</span></div><h1>{mode === 'login' ? 'Welcome back.' : 'Create workspace access.'}</h1><p>Run the retail inventory demo with live service data.</p><form onSubmit={authSubmit}><label>Email<input type="email" required value={auth.email} onChange={e => setAuth({ ...auth, email: e.target.value })} /></label><label>Password<input type="password" minLength={8} required value={auth.password} onChange={e => setAuth({ ...auth, password: e.target.value })} /></label><button className="primary"><LogIn size={16} /> {mode === 'login' ? 'Sign in' : 'Register'}</button></form><button className="link" onClick={() => setMode(mode === 'login' ? 'register' : 'login')}>{mode === 'login' ? 'Need an account? Register' : 'Already registered? Sign in'}</button>{error && <div className="notice">{error}</div>}</div></main>;
 
   const visibleSections = sections.filter(section => canAccess(section, role));
-  const rows = data[active] || [];
+  const rows = active === 'Warehouses' ? filterWarehouseRecords(data.Warehouses || []) : data[active] || [];
   return <main><header><div className="brand"><Boxes size={28} /><span>Stockroom</span></div><div className="header-actions"><span className="role-badge">{user.email} · {user.role}</span><button onClick={load}><RefreshCw size={16} /> Refresh</button><button onClick={signOut}>Sign out</button></div></header><section className="hero"><p className="eyebrow">OPERATIONS CONSOLE</p><h1>Inventory at a glance.</h1><p>Products, stock positions, suppliers, and orders in one calm workspace.</p></section>{(error || message) && <div className={error ? 'notice' : 'success'}>{error || message}</div>}<nav className="tabs">{visibleSections.map(section => <button className={active === section ? 'tab active' : 'tab'} onClick={() => navigate(section)} key={section}>{section}</button>)}</nav>{!canAccess(active, role) ? <section className="forbidden"><h2>403</h2><p>You do not have permission to access this page.</p><button onClick={() => navigate('Dashboard')}>Back to dashboard</button></section> : active === 'Dashboard' ? <Dashboard data={data} /> : active === 'Users' ? <UserManagement users={users} onChanged={load} /> : <section className="workspace"><div className="section-heading"><div><p className="eyebrow">LIVE DATA</p><h2>{active}</h2></div><span className="count">{rows.length} records</span></div>{active !== 'Inventory' && canWrite(active, role) && <form className="form-grid" onSubmit={save}>{Object.keys(templates[active]).map(key => <label key={key}>{key.replace(/[A-Z]/g, c => ` ${c}`).replace(/^./, c => c.toUpperCase())}<input required={key !== 'description' && key !== 'category' && key !== 'phone'} type={key === 'price' || key === 'quantity' || key.endsWith('Id') ? 'number' : key === 'email' ? 'email' : 'text'} value={form[key] ?? ''} onChange={e => setForm({ ...form, [key]: e.target.value })} /></label>)}<button className="primary"><Plus size={16} /> Add</button></form>}{active === 'Inventory' && canWrite(active, role) && <InventoryActions onError={setError} onMessage={setMessage} onComplete={load} />}<Records rows={rows} kind={active} action={canWrite(active, role) ? act : undefined} /></section>}</main>;
 }
 

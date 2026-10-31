@@ -15,9 +15,12 @@ import java.util.regex.Pattern;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
+  private static final Logger log = LoggerFactory.getLogger(JwtAuthenticationFilter.class);
   public static final String INVALID_JWT_ATTRIBUTE = JwtAuthenticationFilter.class.getName() + ".invalid";
   public static final String AUTHENTICATED_JWT_ATTRIBUTE = JwtAuthenticationFilter.class.getName() + ".authenticated";
   private final byte[] secret;
@@ -44,9 +47,19 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
           var authorities = roles.stream().map(role -> new SimpleGrantedAuthority("ROLE_" + role)).toList();
           SecurityContextHolder.getContext().setAuthentication(
               new UsernamePasswordAuthenticationToken(subject, null, authorities));
-            request.setAttribute(AUTHENTICATED_JWT_ATTRIBUTE, Boolean.TRUE);
+          request.setAttribute(AUTHENTICATED_JWT_ATTRIBUTE, Boolean.TRUE);
+            log.info("JWT authentication established method={} path={} subject={} roles={} authorities={}",
+              request.getMethod(), request.getRequestURI(), subject, roles, authorities);
+          log.debug("JWT verified method={} path={} subject={} roles={} authorities={} expiresAt={}",
+              request.getMethod(), request.getRequestURI(), subject, roles, authorities, claims.getExpiration());
+        } else {
+          log.warn("JWT verified but no authentication created method={} path={} subject={} roles={} existingAuthentication={}",
+              request.getMethod(), request.getRequestURI(), subject, roles,
+              SecurityContextHolder.getContext().getAuthentication() != null);
         }
-      } catch (RuntimeException ignored) {
+      } catch (RuntimeException exception) {
+        log.warn("JWT rejected method={} path={} exceptionType={} message={}",
+            request.getMethod(), request.getRequestURI(), exception.getClass().getSimpleName(), exception.getMessage());
         request.setAttribute(INVALID_JWT_ATTRIBUTE, Boolean.TRUE);
         SecurityContextHolder.clearContext();
       }

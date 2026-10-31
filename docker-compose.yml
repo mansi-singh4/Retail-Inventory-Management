@@ -24,44 +24,44 @@ services:
     depends_on: [auth-service, product-service, inventory-service, supplier-service, order-service]
   auth-service:
     build: ./services/auth-service
+    env_file: .env
     environment:
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/inventory
-      JWT_SECRET: ${JWT_SECRET:?JWT_SECRET must be set}
       INITIAL_ADMIN_EMAIL: ${INITIAL_ADMIN_EMAIL:-}
     ports: ["8081:8081"]
     depends_on:
       postgres: { condition: service_healthy }
   product-service:
     build: ./services/product-service
+    env_file: .env
     environment:
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/inventory
-      JWT_SECRET: ${JWT_SECRET:?JWT_SECRET must be set}
     ports: ["8082:8082"]
     depends_on:
       postgres: { condition: service_healthy }
   inventory-service:
     build: ./services/inventory-service
+    env_file: .env
     environment:
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/inventory
-      JWT_SECRET: ${JWT_SECRET:?JWT_SECRET must be set}
     ports: ["8083:8083"]
     depends_on:
       postgres: { condition: service_healthy }
   supplier-service:
     build: ./services/supplier-service
+    env_file: .env
     environment:
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/inventory
-      JWT_SECRET: ${JWT_SECRET:?JWT_SECRET must be set}
     ports: ["8084:8084"]
     depends_on:
       postgres: { condition: service_healthy }
   order-service:
     build: ./services/order-service
+    env_file: .env
     ports: ["8085:8085"]
     environment:
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/inventory
       INVENTORY_URL: http://inventory-service:8083
-      JWT_SECRET: ${JWT_SECRET:?JWT_SECRET must be set}
     depends_on:
       postgres: { condition: service_healthy }
 volumes: { postgres-data: }

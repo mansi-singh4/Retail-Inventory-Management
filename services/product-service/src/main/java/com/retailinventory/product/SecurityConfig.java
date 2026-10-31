@@ -24,9 +24,9 @@ public class SecurityConfig {
             ? HttpStatus.UNAUTHORIZED.value() : HttpStatus.FORBIDDEN.value()))
             .accessDeniedHandler((request, response, error) -> response.sendError(HttpStatus.FORBIDDEN.value())))
         .authorizeHttpRequests(a -> a.requestMatchers("/actuator/health").permitAll()
-          .requestMatchers(HttpMethod.POST, "/products/**", "/categories/**").hasAnyRole("ADMIN", "MANAGER")
-          .requestMatchers(HttpMethod.PUT, "/products/**", "/categories/**").hasAnyRole("ADMIN", "MANAGER")
-          .requestMatchers(HttpMethod.DELETE, "/products/**", "/categories/**").hasAnyRole("ADMIN", "MANAGER")
+          .requestMatchers(HttpMethod.POST, "/products/**", "/categories/**").hasAnyAuthority("ROLE_ADMIN", "ROLE_MANAGER")
+          .requestMatchers(HttpMethod.PUT, "/products/**", "/categories/**").hasAnyAuthority("ROLE_ADMIN", "ROLE_MANAGER")
+          .requestMatchers(HttpMethod.DELETE, "/products/**", "/categories/**").hasAnyAuthority("ROLE_ADMIN", "ROLE_MANAGER")
           .anyRequest().authenticated())
         .addFilterBefore(new JwtAuthenticationFilter(secret), UsernamePasswordAuthenticationFilter.class)
         .build();

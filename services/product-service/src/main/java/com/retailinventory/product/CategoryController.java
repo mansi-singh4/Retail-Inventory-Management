@@ -26,14 +26,14 @@ public class CategoryController {
   public List<Category> all() { return repo.findAll(); }
 
   @PostMapping
-  @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
+  @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'ROLE_MANAGER')")
   public ResponseEntity<Category> create(@Valid @RequestBody Category input) {
     input.id = null;
     return ResponseEntity.status(HttpStatus.CREATED).body(repo.save(input));
   }
 
   @PutMapping("/{id}")
-  @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
+  @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'ROLE_MANAGER')")
   public Category update(@PathVariable Long id, @Valid @RequestBody Category input) {
     Category category = repo.findById(id).orElseThrow();
     category.name = input.name;
@@ -42,7 +42,7 @@ public class CategoryController {
   }
 
   @DeleteMapping("/{id}")
-  @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
+  @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'ROLE_MANAGER')")
   public void delete(@PathVariable Long id) { repo.deleteById(id); }
 
   @Entity
